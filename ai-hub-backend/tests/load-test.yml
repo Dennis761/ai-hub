@@ -1,0 +1,18 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - flow:
+      - post:
+          url: "/api/prompts"
+          json:
+            taskId: "6858287a75a1c489224a6304"
+            name: "Test GPT Prompt"
+            modelId: "6858296e75a1c489224a6306"
+            promptText: "Порівняй {{product1}} та {{product2}} у категорії {{category}} для регіону {{region}}. Врахуй {{pods}}."

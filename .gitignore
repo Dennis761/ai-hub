@@ -1,0 +1,16 @@
+# Ignore sensitive environment variable files
+ai-hub-backend/.env
+frontend/.env
+
+# Do not ignore loadEnv.js (needed for deployment)
+# ai-hub-backend/src/config/loadEnv.js
+
+# Ignore all node_modules folders
+**/node_modules/
+
+# Ignore logs
+*.log
+
+# Ignore editor and system files
+.vscode/
+.DS_Store
