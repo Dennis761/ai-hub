@@ -7,22 +7,38 @@ export default function AdminLogin() {
   const [step, setStep] = useState('login');
   const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const safeJson = async (res) => {
+    try {
+      return await res.json();
+    } catch {
+      return {};
+    }
+  };
 
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      localStorage.setItem('token', data.token);
-      navigate('/ai-hub');
-      alert('Вхід виконано успішно');
-    } else {
-      alert(data.message || 'Помилка входу');
+  const handleLogin = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await safeJson(res);
+
+      if (res.ok) {
+        localStorage.setItem('token', data.token);
+        navigate('/ai-hub');
+        alert('Вхід виконано успішно');
+      } else {
+        alert(data.message || 'Помилка входу');
+      }
+    } catch (err) {
+      alert('Помилка зʼєднання з сервером');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -32,48 +48,71 @@ export default function AdminLogin() {
       return;
     }
 
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/forgot-password`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
-    const data = await res.json();
+    setLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await safeJson(res);
 
-    if (res.ok) {
-      setStep('verify');
-      alert('Код надіслано на email');
-    } else {
-      alert(data.message || 'Помилка надсилання коду');
+      if (res.ok) {
+        setStep('verify');
+        alert('Код надіслано на email');
+      } else {
+        alert(data.message || 'Помилка надсилання коду');
+      }
+    } catch (err) {
+      alert('Помилка зʼєднання з сервером');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleVerifyCode = async () => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/verify-reset-code`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, code }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setStep('newPassword');
-      alert('Код підтверджено. Створіть новий пароль');
-    } else {
-      alert(data.message || 'Невірний або прострочений код');
+    setLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/verify-reset-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code }),
+      });
+      const data = await safeJson(res);
+
+      if (res.ok) {
+        setStep('newPassword');
+        alert('Код підтверджено. Створіть новий пароль');
+      } else {
+        alert(data.message || 'Невірний або прострочений код');
+      }
+    } catch (err) {
+      alert('Помилка зʼєднання з сервером');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSetNewPassword = async () => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/set-new-password`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password: newPassword }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      alert('Пароль змінено. Тепер увійдіть');
-      setStep('login');
-    } else {
-      alert(data.message || 'Помилка зміни паролю');
+    setLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/set-new-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password: newPassword }),
+      });
+      const data = await safeJson(res);
+
+      if (res.ok) {
+        alert('Пароль змінено. Тепер увійдіть');
+        setStep('login');
+      } else {
+        alert(data.message || 'Помилка зміни паролю');
+      }
+    } catch (err) {
+      alert('Помилка зʼєднання з сервером');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -95,10 +134,18 @@ export default function AdminLogin() {
             onChange={(e) => setPassword(e.target.value)}
             className='form-control mb-2'
           />
-          <button className='btn btn-primary w-100 mb-2' onClick={handleLogin}>
+          <button
+            className='btn btn-primary w-100 mb-2'
+            onClick={handleLogin}
+            disabled={loading}
+          >
             Увійти
           </button>
-          <button className='btn btn-link w-100' onClick={handleForgotClick}>
+          <button
+            className='btn btn-link w-100'
+            onClick={handleForgotClick}
+            disabled={loading}
+          >
             Забули пароль?
           </button>
         </>
@@ -113,7 +160,11 @@ export default function AdminLogin() {
             onChange={(e) => setCode(e.target.value)}
             className='form-control mb-2'
           />
-          <button className='btn btn-success w-100' onClick={handleVerifyCode}>
+          <button
+            className='btn btn-success w-100'
+            onClick={handleVerifyCode}
+            disabled={loading}
+          >
             Підтвердити код
           </button>
         </>
@@ -129,7 +180,11 @@ export default function AdminLogin() {
             onChange={(e) => setNewPassword(e.target.value)}
             className='form-control mb-2'
           />
-          <button className='btn btn-success w-100' onClick={handleSetNewPassword}>
+          <button
+            className='btn btn-success w-100'
+            onClick={handleSetNewPassword}
+            disabled={loading}
+          >
             Змінити пароль
           </button>
         </>
