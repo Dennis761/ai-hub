@@ -13,7 +13,8 @@ const {
 
 // Read
 router.get('/my', checkAuth, projectReadController.getMyProjects.bind(projectReadController));
-
+router.get('/:id', checkAuth, projectReadController.getProjectById.bind(projectReadController));
+ 
 // Write
 router.post('/', checkAuth, projectWriteController.create.bind(projectWriteController));
 router.patch('/:id', checkAuth, projectWriteController.update.bind(projectWriteController));

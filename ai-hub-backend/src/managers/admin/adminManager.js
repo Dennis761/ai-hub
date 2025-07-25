@@ -8,57 +8,46 @@ class AdminManager {
     this.adminRepository = adminRepository;
   }
 
-  async register({ email, password, name }) {
-    const existingAdmin = await this.adminRepository.findByEmail(email);
+  async register(data, existingAdmin) {
     const { code, hash } = generateVerificationCode();
+    const hashedPassword = await bcrypt.hash(data.password, 10);
     const expiresAt = Date.now() + 10 * 60 * 1000;
-    const hashedPassword = await bcrypt.hash(password, 10);
 
     if (existingAdmin) {
-      if (existingAdmin.isVerified)
-        throw new Error("This email is already registered");
-
-      if (existingAdmin.verificationCodeExpires &&
-          new Date() < new Date(existingAdmin.verificationCodeExpires)) {
-        throw new Error("Please wait before requesting a new verification code");
-      }
-
       Object.assign(existingAdmin, {
-        name,
+        name: data.name,
         password: hashedPassword,
         verificationCode: hash,
         verificationCodeExpires: expiresAt,
       });
 
       await this.adminRepository.save(existingAdmin);
-      await sendVerificationEmail(email, code);
-      return { message: "Verification code resent to email" };
+      await sendVerificationEmail(data.email, code);
+      return { message: "Verification code resent to email", status: 200 };
     }
 
     await this.adminRepository.create({
-      email,
+      email: data.email,
       password: hashedPassword,
-      name,
+      name: data.name,
       verificationCode: hash,
       verificationCodeExpires: expiresAt,
       isVerified: false,
     });
 
-    await sendVerificationEmail(email, code);
-    return { message: "Verification code sent to email" };
+    await sendVerificationEmail(data.email, code);
+    return { message: "Verification code sent to email", status: 201 };
   }
 
-  async verifyEmail(email, code) {
-    const admin = await this.adminRepository.findByEmail(email);
-    if (!admin) throw new Error("User not found");
-    if (admin.isVerified) throw new Error("Email already verified");
-
-    if (!admin.verificationCode || Date.now() > admin.verificationCodeExpires)
+  async verifyEmail(admin, code) {
+    if (!admin.verificationCode || Date.now() > admin.verificationCodeExpires) {
       throw new Error("Code is invalid or expired");
+    }
 
     const hashedInput = hashCode(code);
-    if (hashedInput !== admin.verificationCode)
+    if (hashedInput !== admin.verificationCode) {
       throw new Error("Invalid code");
+    }
 
     Object.assign(admin, {
       isVerified: true,
@@ -70,13 +59,9 @@ class AdminManager {
     return { message: "Email successfully verified" };
   }
 
-  async login(email, password) {
-    const admin = await this.adminRepository.findByEmail(email);
-    if (!admin) throw new Error("Invalid credentials");
-
+  async login(admin, password) {
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) throw new Error("Invalid credentials");
-
     if (!admin.isVerified) throw new Error("Email is not verified");
 
     const token = generateToken({ userId: admin._id });
@@ -90,10 +75,7 @@ class AdminManager {
     };
   }
 
-  async requestPasswordReset(email) {
-    const admin = await this.adminRepository.findByEmail(email);
-    if (!admin) throw new Error("Admin not found");
-
+  async requestPasswordReset(admin) {
     const { code, hash } = generateVerificationCode();
     const expiresAt = Date.now() + 10 * 60 * 1000;
 
@@ -104,14 +86,11 @@ class AdminManager {
     });
 
     await this.adminRepository.save(admin);
-    await sendVerificationEmail(email, code);
+    await sendVerificationEmail(admin.email, code);
     return { message: "Verification code sent to email" };
   }
 
-  async verifyResetCode(email, code) {
-    const admin = await this.adminRepository.findByEmail(email);
-    if (!admin) throw new Error("Admin not found");
-
+  async verifyResetCode(admin, code) {
     const hashedInput = hashCode(code);
     if (
       !admin.verificationCode ||
@@ -126,12 +105,7 @@ class AdminManager {
     return { message: "Code confirmed. You can set a new password now" };
   }
 
-  async setNewPassword(email, password) {
-    const admin = await this.adminRepository.findByEmail(email);
-    if (!admin || !admin.isResetCodeConfirmed) {
-      throw new Error("Please confirm the reset code first");
-    }
-
+  async setNewPassword(admin, password) {
     admin.password = await bcrypt.hash(password, 10);
     Object.assign(admin, {
       verificationCode: null,

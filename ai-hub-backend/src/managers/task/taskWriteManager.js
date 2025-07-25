@@ -1,6 +1,7 @@
 class TaskWriteManager {
-  constructor(taskWriteRepository) {
-    this.taskWriteRepository = taskWriteRepository;
+  constructor({taskWriteRepository, taskReadRepository}) {
+    this.taskWriteRepository = taskWriteRepository,
+    this.taskReadRepository = taskReadRepository;
   }
 
   async create(data) {
@@ -12,9 +13,13 @@ class TaskWriteManager {
   }
 
   async delete(id) {
-    const task = await this.taskWriteRepository.delete(id);
-    if (!task) throw new Error('Task not found');
-    return { message: 'Task and related prompts deleted' };
+    const readTask = await this.taskReadRepository.findById(id)
+    if (!readTask) throw new Error('Task not found');
+
+    const writeTask = await this.taskWriteRepository.delete(id);
+    if (!writeTask) throw new Error('Task not found');
+
+    return { message: 'Task and related prompts deleted', projectId: readTask.projectId };
   }
 
 }

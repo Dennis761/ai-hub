@@ -1,20 +1,18 @@
 import ProjectReadRepository from '../../repositories/project/projectReadRepository.js';
-import ProjectWriteRepository from '../../repositories/project/projectWriteRepository.js';
 
-import ProjectAccessManager from '../../managers/project/projectAccessManager.js';
-import ProjectAccessService from '../../use-cases/project/projectAccessService.js';
+import ProjectReadManager from '../../managers/project/projectReadManager.js';
+import ProjectReadService from '../../use-cases/project/projectReadService.js';
 import ProjectReadController from '../../controllers/project/projectReadController.js';
 
 // Repositories
 const projectReadRepository = new ProjectReadRepository();
-const projectWriteRepository = new ProjectWriteRepository();
 
 // Managers
-const projectAccessManager = new ProjectAccessManager(projectReadRepository, projectWriteRepository);
+const projectReadManager = new ProjectReadManager(projectReadRepository);
 
 // Services
-const projectAccessService = new ProjectAccessService(projectAccessManager);
-
-const projectReadController = new ProjectReadController(projectAccessService);
+const projectReadService = new ProjectReadService(projectReadManager);
+ 
+const projectReadController = new ProjectReadController(projectReadService);
 
 export default projectReadController

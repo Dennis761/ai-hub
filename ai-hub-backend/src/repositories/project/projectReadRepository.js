@@ -8,7 +8,7 @@ export default class ProjectReadRepository {
   async findByName(name) {
     return await ProjectModel.findOne({ name });
   }
-
+ 
   async findOwned(ownerId) {
     return await ProjectModel.find({ ownerId }).sort({ createdAt: -1 });
   }
@@ -16,4 +16,5 @@ export default class ProjectReadRepository {
   async findParticipating(adminId) {
     return await ProjectModel.find({ adminAccess: adminId }).sort({ createdAt: -1 });
   }
+  
 }

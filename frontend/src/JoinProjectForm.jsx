@@ -6,7 +6,7 @@ function JoinProjectForm({ onJoined }) {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
@@ -14,7 +14,7 @@ function JoinProjectForm({ onJoined }) {
     setMessage('');
     if (loading) return;
     setLoading(true);
-  
+
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/projects/join`, {
         method: 'POST',
@@ -24,20 +24,21 @@ function JoinProjectForm({ onJoined }) {
         },
         body: JSON.stringify(form),
       });
-  
+
       const result = await response.json();
-  
+
       if (!response.ok) throw new Error(result.details || result.error || 'Не вдалося приєднатись до проєкту');
-  
+
       setMessage(result.message);
       setForm({ name: '', apiKey: '' });
-  
+
+      if (onJoined) onJoined();
     } catch (err) {
-      setMessage(`❌ Помилка: ${err.message}`);
+      setMessage(` Помилка: ${err.message}`);
     } finally {
       setLoading(false);
     }
-  };  
+  };
 
   return (
     <div style={{ marginTop: '20px' }}>

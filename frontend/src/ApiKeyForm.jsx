@@ -109,7 +109,7 @@ const ApiKeyForm = ({ onSuccess }) => {
 
       <input
         name="balance"
-        placeholder="Balance (optional)"
+        placeholder="Balance"
         type="number"
         value={formData.balance}
         onChange={handleChange}

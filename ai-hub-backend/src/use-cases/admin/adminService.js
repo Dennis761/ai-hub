@@ -1,30 +1,60 @@
 class AdminService {
-  constructor(adminManager) {
+  constructor({ adminManager, adminRepository }) {
     this.adminManager = adminManager;
+    this.adminRepository = adminRepository;
+  } 
+
+  async register(data) {
+    const existing = await this.adminRepository.findByEmail(data.email);
+
+    if (existing?.isVerified) {
+      throw new Error("This email is already registered");
+    }
+
+    if (existing && existing.verificationCodeExpires &&
+        new Date() < new Date(existing.verificationCodeExpires)) {
+      throw new Error("Please wait before requesting a new verification code");
+    }
+
+    return this.adminManager.register(data, existing);
   }
 
-  register(data) {
-    return this.adminManager.register(data);
+  async verifyEmail(email, code) {
+    const admin = await this.adminRepository.findByEmail(email);
+    if (!admin) throw new Error("User not found");
+    if (admin.isVerified) throw new Error("Email already verified");
+
+    return this.adminManager.verifyEmail(admin, code);
   }
 
-  verifyEmail(email, code) {
-    return this.adminManager.verifyEmail(email, code);
+  async login(email, password) {
+    const admin = await this.adminRepository.findByEmail(email);
+    if (!admin) throw new Error("Invalid credentials");
+
+    return this.adminManager.login(admin, password);
   }
 
-  login(email, password) {
-    return this.adminManager.login(email, password);
+  async requestPasswordReset(email) {
+    const admin = await this.adminRepository.findByEmail(email);
+    if (!admin) throw new Error("Admin not found");
+
+    return this.adminManager.requestPasswordReset(admin);
   }
 
-  requestPasswordReset(email) {
-    return this.adminManager.requestPasswordReset(email);
+  async verifyResetCode(email, code) {
+    const admin = await this.adminRepository.findByEmail(email);
+    if (!admin) throw new Error("Admin not found");
+
+    return this.adminManager.verifyResetCode(admin, code);
   }
 
-  verifyResetCode(email, code) {
-    return this.adminManager.verifyResetCode(email, code);
-  }
+  async setNewPassword(email, password) {
+    const admin = await this.adminRepository.findByEmail(email);
+    if (!admin || !admin.isResetCodeConfirmed) {
+      throw new Error("Please confirm the reset code first");
+    }
 
-  setNewPassword(email, password) {
-    return this.adminManager.setNewPassword(email, password);
+    return this.adminManager.setNewPassword(admin, password);
   }
 }
 

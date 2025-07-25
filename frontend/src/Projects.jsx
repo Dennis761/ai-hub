@@ -48,10 +48,7 @@ export default function Projects() {
     })
       .then((res) => res.json())
       .then((data) => {
-        const all = Array.from(
-          new Map([...data.owned, ...data.participating].map(p => [p._id, p])).values()
-        );
-        setProjects(all);
+        setProjects(data.projects);
       });
   };
 
@@ -84,14 +81,25 @@ export default function Projects() {
     fetchProjects();
   }, []);
 
-  const handleProjectClick = (projectId) => {
+  const handleProjectClick = async (projectId) => {
     if (selectedProjectId === projectId) {
       setSelectedProjectId(null);
     } else {
       setSelectedProjectId(projectId);
+  
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/projects/${projectId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      const project = await res.json();
+  
+      setProjects((prev) =>
+        prev.map((p) => (p._id === projectId ? { ...p, ...project } : p))
+      );
+  
       fetchTasks(projectId);
     }
-  };
+  };  
 
   const handleTaskClick = (taskId) => {
     setExpandedTasks(prev => ({

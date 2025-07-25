@@ -6,6 +6,7 @@ class PromptHistoryManager {
 
   async addToHistory(promptId, newPromptText, newResponseText) {
     const prompt = await this.promptReadRepository.findById(promptId);
+
     if (!prompt) throw new Error('Prompt not found');
 
     if (!newResponseText || newResponseText.trim() === '') {

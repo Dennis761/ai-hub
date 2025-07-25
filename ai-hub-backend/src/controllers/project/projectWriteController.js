@@ -1,7 +1,7 @@
 class ProjectWriteController {
     constructor({ projectWriteService, projectInputService }) {
       this.projectWriteService = projectWriteService;
-      this.inputService = projectInputService;
+      this.projectInputService = projectInputService;
     }
   
     async create(req, res) {
@@ -9,8 +9,8 @@ class ProjectWriteController {
         const adminId = req.user?._id;
         if (!adminId) return res.status(401).json({ error: 'Unauthorized' });
   
-        const input = this.inputService.normalize(req.body);
-        this.inputService.validate(input);
+        const input = this.projectInputService.normalize(req.body);
+        this.projectInputService.validate(input);
   
         const project = await this.projectWriteService.create({
           ...input,

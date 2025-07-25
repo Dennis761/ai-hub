@@ -7,7 +7,7 @@ class ProjectAccessController {
       try {
         const { name, apiKey } = req.body;
         const adminId = req.user?._id;
-  
+   
         if (!name || !apiKey) {
           return res.status(400).json({ error: 'Missing "name" or "apiKey".' });
         }

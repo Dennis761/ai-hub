@@ -14,7 +14,7 @@ const projectWriteRepository = new ProjectWriteRepository();
 const projectWriteManager = new ProjectWriteManager({ projectWriteRepository, projectReadRepository });
 
 // Services
-const projectWriteService = new ProjectWriteService(projectWriteManager);
+const projectWriteService = new ProjectWriteService({ projectWriteManager });
 const projectInputService = new ProjectInputService();
 
 const projectWriteController = new ProjectWriteController({

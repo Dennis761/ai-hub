@@ -1,26 +1,15 @@
 import { decrypt } from '../../utils/cryptoUtils.js';
 
 export default class ProjectAccessManager {
-  constructor(projectReadRepository, projectWriteRepository) {
+  constructor(projectReadRepository) {
     this.projectReadRepository = projectReadRepository;
-    this.projectWriteRepository = projectWriteRepository;
-  }
-
-  async getByOwner(ownerId) {
-    const projects = await this.projectReadRepository.findOwned(ownerId);
-    return projects.map(p => ({ ...p.toObject(), apiKey: decrypt(p.apiKey) }));
-  }
-
-  async getByParticipant(adminId) {
-    const projects = await this.projectReadRepository.findParticipating(adminId);
-    return projects.map(p => ({ ...p.toObject(), apiKey: decrypt(p.apiKey) }));
   }
 
   async joinByName(projectName, providedApiKey, adminId) {
     const project = await this.projectReadRepository.findByName(projectName);
     if (!project) throw new Error('Project with this name does not exist.');
     if (project.status !== 'active') throw new Error('Project is not active.');
-
+ 
     const decryptedKey = decrypt(project.apiKey);
     if (decryptedKey !== providedApiKey) throw new Error('Incorrect API key.');
 
@@ -45,4 +34,4 @@ export default class ProjectAccessManager {
       message: 'Successfully joined the project.',
     };
   }
-}
+} 

@@ -6,12 +6,8 @@ class ApiKeyReadService {
     getAllKeys(filter) {
       return this.apiKeyReadManager.getAllKeys(filter);
     }
-  
+   
     getModelById(modelId) {
-      return this.apiKeyReadManager.getDecryptedKeyById(modelId);
-    }
-  
-    getActiveKey(modelId) {
       return this.apiKeyReadManager.getDecryptedKeyById(modelId);
     }
   }

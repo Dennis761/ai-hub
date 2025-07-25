@@ -10,7 +10,7 @@ class ApiKeyReadController {
       } catch (err) {
         res.status(500).json({ error: 'Failed to fetch keys', details: err.message });
       }
-    }
+    } 
   }
   
   export default ApiKeyReadController;

@@ -28,6 +28,7 @@ const apiKeySchema = new mongoose.Schema(
     },
     balance: {
       type: Number,
+      required: true,
       default: null,
       min: 0,
     },

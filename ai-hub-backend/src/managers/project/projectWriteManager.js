@@ -14,20 +14,21 @@ export default class ProjectWriteManager {
   async update(id, updates) {
     if (updates.name) {
       const existing = await this.projectReadRepository.findByName(updates.name);
+
       if (existing && existing._id.toString() !== id) {
         const error = new Error('Project name already exists');
         error.status = 409;
         throw error;
       }
     }
-
+    
     if (updates.apiKey) {
       updates.apiKey = encrypt(updates.apiKey);
     }
 
     return await this.projectWriteRepository.update(id, updates);
   }
-
+ 
   async delete(id) {
     return await this.projectWriteRepository.delete(id);
   }

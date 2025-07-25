@@ -21,8 +21,8 @@ class AdminController {
       const input = this.adminInputService.normalize(req.body);
       this.adminInputService.validateVerification(input);
 
-      const message = await this.adminService.verifyEmail(input.email, input.code);
-      res.json({ message });
+      const response = await this.adminService.verifyEmail(input.email, input.code);
+      res.json({ message: response.message });
     } catch (error) {
       res.status(error.status || 400).json({ message: error.message });
     }
@@ -43,11 +43,10 @@ class AdminController {
   async requestPasswordReset(req, res) {
     try {
       const { email } = this.adminInputService.normalize(req.body);
-
       if (!email) throw new Error('Email is required');
 
-      const message = await this.adminService.requestPasswordReset(email);
-      res.json({ message });
+      const response = await this.adminService.requestPasswordReset(email);
+      res.json({ message: response.message });
     } catch (error) {
       res.status(error.status || 400).json({ message: error.message });
     }
@@ -58,8 +57,8 @@ class AdminController {
       const input = this.adminInputService.normalize(req.body);
       this.adminInputService.validateVerification(input);
 
-      const message = await this.adminService.verifyResetCode(input.email, input.code);
-      res.json({ message });
+      const response = await this.adminService.verifyResetCode(input.email, input.code);
+      res.json({ message: response.message });
     } catch (error) {
       res.status(error.status || 400).json({ message: error.message });
     }
@@ -68,12 +67,12 @@ class AdminController {
   async setNewPassword(req, res) {
     try {
       const { email, password } = this.adminInputService.normalize(req.body);
-      
-      if (!email || !password)
+      if (!email || !password) {
         throw new Error('Email and new password are required');
+      }
 
-      const message = await this.adminService.setNewPassword(email, password);
-      res.json({ message });
+      const response = await this.adminService.setNewPassword(email, password);
+      res.json({ message: response.message });
     } catch (error) {
       res.status(error.status || 400).json({ message: error.message });
     }

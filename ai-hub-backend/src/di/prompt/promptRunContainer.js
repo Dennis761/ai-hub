@@ -7,7 +7,8 @@ import PromptHistoryManager from '../../managers/prompt/promptHistoryManager.js'
 import PromptReadService from '../../use-cases/prompt/promptReadService.js';
 import PromptHistoryService from '../../use-cases/prompt/promptHistoryService.js';
 import PromptInputService from '../../use-cases/prompt/promptInputService.js';
- 
+import PromptRunService from '../../use-cases/prompt/promptRunService.js';
+
 import TaskReadRepository from '../../repositories/task/taskReadRepository.js';
 import TaskReadManager from '../../managers/task/taskReadManager.js';
 import TaskReadService from '../../use-cases/task/taskReadService.js';
@@ -21,6 +22,10 @@ import ApiKeyWriteManager from '../../managers/apiKey/apiKeyWriteManager.js';
 
 import ApiKeyReadService from '../../use-cases/apiKey/apiKeyReadService.js';
 import ApiKeyWriteService from '../../use-cases/apiKey/apiKeyWriteService.js';
+
+import ProjectReadRepository from '../../repositories/project/projectReadRepository.js';
+import ProjectReadManager from '../../managers/project/projectReadManager.js';
+import ProjectReadService from '../../use-cases/project/projectReadService.js';
 
 // -------------------------
 // Prompt layer setup
@@ -36,7 +41,6 @@ const promptHistoryManager = new PromptHistoryManager({
 });
 
 const promptReadService = new PromptReadService(promptReadManager);
-const promptHistoryService = new PromptHistoryService(promptHistoryManager);
 const promptInputService = new PromptInputService();
 
 // -------------------------
@@ -44,13 +48,19 @@ const promptInputService = new PromptInputService();
 // -------------------------
 
 const taskReadRepository = new TaskReadRepository();
-
 const taskReadManager = new TaskReadManager(taskReadRepository);
-
 const taskReadService = new TaskReadService(taskReadManager);
 
 // -------------------------
-// Repository layer setup
+// Project layer setup
+// -------------------------
+
+const projectReadRepository = new ProjectReadRepository();
+const projectReadManager = new ProjectReadManager(projectReadRepository);
+const projectReadService = new ProjectReadService(projectReadManager);
+
+// -------------------------
+// ApiKey layer setup
 // -------------------------
 
 const apiKeyReadRepository = new ApiKeyReadRepository();
@@ -67,14 +77,26 @@ const apiKeyWriteManager = new ApiKeyWriteManager({
 const apiKeyReadService = new ApiKeyReadService(apiKeyReadManager);
 const apiKeyWriteService = new ApiKeyWriteService(apiKeyWriteManager);
 
+// -------------------------
+// PromptHistoryService setup
+// -------------------------
 
-const promptRunController = new PromptRunController({
+const promptHistoryService = new PromptHistoryService({
+  promptHistoryManager,
+  promptReadManager,
+  taskReadManager,
+  projectReadService
+});
+
+const promptRunService = new PromptRunService({
   promptReadService,
   taskReadService,
-  apiKeyReadService,
   apiKeyWriteService,
+  apiKeyReadService,
   promptInputService,
   promptHistoryService,
 });
+
+const promptRunController = new PromptRunController(promptRunService);
 
 export default promptRunController;

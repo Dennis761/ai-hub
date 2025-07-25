@@ -1,15 +1,15 @@
-import { getAsync, setAsync } from '../redis/redisClient.js';
 import loadEnv from '../../config/loadEnv.js';
+import { getCachedLLMPath, cacheLLMPath } from '../../utils/cache/llmPathCache.js';
+
+function getValueByPath(data, path) {
+  return path.reduce((acc, key) => acc?.[key], data);
+}
 
 async function extractLLMResponse(data, modelName) {
-  const cacheKey = `llm:path:${modelName}`;
-
   const start = Date.now();
+  const cachedPath = await getCachedLLMPath(modelName);
 
-  const cachedPathJson = await getAsync(cacheKey);
-
-  if (cachedPathJson) {
-    const cachedPath = JSON.parse(cachedPathJson);
+  if (cachedPath) {
     const value = getValueByPath(data, cachedPath);
     if (typeof value === 'string' && value.startsWith(loadEnv.RESPONSE_PREFIX)) {
       const end = Date.now();
@@ -44,14 +44,10 @@ async function extractLLMResponse(data, modelName) {
   console.log(`[CACHE MISS] ${modelName} — recursive search ${(searchEnd - searchStart)}ms`);
 
   if (result?.path) {
-    await setAsync(cacheKey, JSON.stringify(result.path), 86400);
+    await cacheLLMPath(modelName, result.path);
   }
 
   return result;
-}
-
-function getValueByPath(data, path) {
-  return path.reduce((acc, key) => acc?.[key], data);
 }
 
 export default extractLLMResponse;
