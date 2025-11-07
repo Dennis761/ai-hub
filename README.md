@@ -55,7 +55,7 @@ backend/
      │   └── uow/                # Unit of Work abstraction for atomic operations
      ├── http/                   # HTTP transport layer
      │   ├── gin/                # Gin controllers and route definitions
-     │   └── httpErrorMapper/    # Maps domain/application errors to HTTP responses
+     │   └── httperrormapper/    # Maps domain/application errors to HTTP responses
      └── services/               # Integrations with external services
 ````
 

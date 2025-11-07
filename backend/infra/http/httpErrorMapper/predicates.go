@@ -1,4 +1,4 @@
-package httpErrorMapper
+package httperrormapper
 
 import "net/http"
 
@@ -8,7 +8,11 @@ func IsAdminError(err error) bool {
 		return false
 	}
 
-	key := extractKey(err)
+	var key string
+	if c, ok := err.(interface{ Code() string }); ok {
+		key = c.Code()
+	}
+
 	if key == "" {
 		return false
 	}
@@ -46,7 +50,11 @@ func IsApiKeyError(err error) bool {
 		return false
 	}
 
-	key := extractKey(err)
+	var key string
+	if c, ok := err.(interface{ Code() string }); ok {
+		key = c.Code()
+	}
+
 	if key == "" {
 		return false
 	}
@@ -82,7 +90,11 @@ func IsProjectError(err error) bool {
 		return false
 	}
 
-	key := extractKey(err)
+	var key string
+	if c, ok := err.(interface{ Code() string }); ok {
+		key = c.Code()
+	}
+
 	if key == "" {
 		return false
 	}
@@ -117,7 +129,11 @@ func IsPromptError(err error) bool {
 		return false
 	}
 
-	key := extractKey(err)
+	var key string
+	if c, ok := err.(interface{ Code() string }); ok {
+		key = c.Code()
+	}
+
 	if key == "" {
 		return false
 	}
@@ -142,7 +158,11 @@ func IsTaskError(err error) bool {
 		return false
 	}
 
-	key := extractKey(err)
+	var key string
+	if c, ok := err.(interface{ Code() string }); ok {
+		key = c.Code()
+	}
+
 	if key == "" {
 		return false
 	}

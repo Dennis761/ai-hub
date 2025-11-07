@@ -24,7 +24,7 @@ func Auth(verifier TokenVerifier) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authz := c.GetHeader("Authorization")
 		if authz == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "You don't have access"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "You don't have access"})
 			return
 		}
 
@@ -35,7 +35,7 @@ func Auth(verifier TokenVerifier) gin.HandlerFunc {
 		}
 
 		if token == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "You don't have access"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "You don't have access"})
 			return
 		}
 

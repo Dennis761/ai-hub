@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"ai_hub.com/app/infra/http/httpErrorMapper"
+	"ai_hub.com/app/infra/http/httperrormapper"
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,18 +33,18 @@ func ErrorHandler() gin.HandlerFunc {
 		var body map[string]string
 
 		switch {
-		case httpErrorMapper.IsAdminError(err):
-			status, body = httpErrorMapper.MapAdminErrorToHttp(err)
-		case httpErrorMapper.IsApiKeyError(err):
-			status, body = httpErrorMapper.MapApiKeyErrorToHttp(err)
-		case httpErrorMapper.IsProjectError(err):
-			status, body = httpErrorMapper.MapProjectErrorToHttp(err)
-		case httpErrorMapper.IsPromptError(err):
-			status, body = httpErrorMapper.MapPromptErrorToHttp(err)
-		case httpErrorMapper.IsTaskError(err):
-			status, body = httpErrorMapper.MapTaskErrorToHttp(err)
+		case httperrormapper.IsAdminError(err):
+			status, body = httperrormapper.MapAdminErrorToHttp(err)
+		case httperrormapper.IsApiKeyError(err):
+			status, body = httperrormapper.MapApiKeyErrorToHttp(err)
+		case httperrormapper.IsProjectError(err):
+			status, body = httperrormapper.MapProjectErrorToHttp(err)
+		case httperrormapper.IsPromptError(err):
+			status, body = httperrormapper.MapPromptErrorToHttp(err)
+		case httperrormapper.IsTaskError(err):
+			status, body = httperrormapper.MapTaskErrorToHttp(err)
 		default:
-			status, body = httpErrorMapper.FallbackInternal(err)
+			status, body = httperrormapper.FallbackInternal(err)
 		}
 
 		log.Printf("[http][error] %T: %v => %d", err, err, status)

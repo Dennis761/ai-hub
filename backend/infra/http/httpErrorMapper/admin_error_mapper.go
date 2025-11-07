@@ -1,4 +1,4 @@
-package httpErrorMapper
+package httperrormapper
 
 import "net/http"
 
@@ -11,7 +11,10 @@ func MapAdminDomainErrorToHttp(err error) HttpError {
 		}
 	}
 
-	key := extractKey(err)
+	var key string
+	if c, ok := err.(interface{ Code() string }); ok {
+		key = c.Code()
+	}
 
 	switch key {
 	case "AdminNotFound":

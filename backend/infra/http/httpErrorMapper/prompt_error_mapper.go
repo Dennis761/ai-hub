@@ -1,4 +1,4 @@
-package httpErrorMapper
+package httperrormapper
 
 import "net/http"
 
@@ -14,7 +14,10 @@ func MapPromptDomainErrorToHttp(err error) HttpError {
 		}
 	}
 
-	key := extractKey(err)
+	var key string
+	if c, ok := err.(interface{ Code() string }); ok {
+		key = c.Code()
+	}
 
 	switch key {
 	case "PromptNotFound", "TaskNotFound":
